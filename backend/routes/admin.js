@@ -15,8 +15,10 @@ router.post("/", async (req, res) => {
     });
 
     res.status(200).json({ id: docRef.id, message: "Admin added" });
+    console.log("Admin added with ID:", docRef.id);
   } catch (error) {
     res.status(500).json({ error: error.message });
+    console.error("Error adding admin:", error);
   }
 });
 
