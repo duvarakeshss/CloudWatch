@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /admin/:email
+// GET /admin/:email - given an admin email, fetch users with the same company name
 router.get("/:email", async (req, res) => {
   try {
     const { email } = req.params;
@@ -70,4 +70,26 @@ router.get("/:email", async (req, res) => {
   }
 });
 
+//GET /admin/check/:email - check user exists 
+router.get("/check/:email",async(req,res)=>{
+   try {
+    const { email } = req.params;
+
+    // Query the admin collection for this email
+    const snapshot = await db
+      .collection("admin")
+      .where("email", "==", email)
+      .limit(1) // only need 1 document
+      .get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ exists: false, message: "Admin not found" });
+    }
+
+    // Email exists
+    res.status(200).json({ exists: true, user: snapshot.docs[0].data() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
 module.exports = router;
