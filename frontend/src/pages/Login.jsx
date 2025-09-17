@@ -1,88 +1,111 @@
 import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
-import { auth } from '../firebase';
+import { signInWithEmailAndPassword, signInWithRedirect, signInWithPopup, getRedirectResult } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user is already authenticated on component mount
-    const checkExistingUser = () => {
-      const user = auth.currentUser;
-      if (user) {
-        console.log('User already authenticated:', user);
-        const hasCompletedSetup = localStorage.getItem(`companySetup_${user.uid}`);
-        console.log('Existing user setup status:', hasCompletedSetup);
-
-        if (!hasCompletedSetup) {
-          console.log('Redirecting existing user to company setup');
-          navigate('/company-setup');
-          return;
-        } else {
-          console.log('Redirecting existing user to dashboard');
-          navigate('/dashboard');
-          return;
-        }
-      }
-    };
-
-    checkExistingUser();
-  }, [navigate]);
 
   useEffect(() => {
     // Handle redirect result on component mount
     const handleRedirectResult = async () => {
       try {
+        console.log('🔍 Checking for OAuth redirect result...');
+        console.log('Current URL:', window.location.href);
+        console.log('URL params:', new URLSearchParams(window.location.search).toString());
+        console.log('URL pathname:', window.location.pathname);
+
+        // Check if this is the Firebase auth handler callback
+        if (window.location.pathname === '/__/auth/handler') {
+          console.log('🔄 Firebase auth handler detected, processing...');
+        }
+
         const result = await getRedirectResult(auth);
         if (result) {
-          const user = result.user;
-          console.log('User signed in with Google:', user);
+          console.log('✅ Google sign-in successful:', result.user);
+          console.log('📧 User email:', result.user.email);
+          console.log('👤 User display name:', result.user.displayName);
 
-          // Check if user has completed company setup
-          const hasCompletedSetup = localStorage.getItem(`companySetup_${user.uid}`);
-          console.log('Company setup status for Google user', user.uid, ':', hasCompletedSetup);
+          // Clear the redirect processing flag
+          sessionStorage.removeItem('redirectProcessed');
 
-          if (!hasCompletedSetup) {
-            console.log('Redirecting Google user to company setup');
-            toast.success('Account created with Google! Please complete your setup.');
-            navigate('/company-setup');
-          } else {
-            console.log('Redirecting Google user to dashboard');
-            toast.success('Signed in with Google!');
-            navigate('/dashboard'); // or wherever existing users should go
+          // Navigate to login page if we're on the auth handler
+          if (window.location.pathname === '/__/auth/handler') {
+            console.log('🏠 Redirecting from auth handler to home...');
+            window.history.replaceState(null, null, '/login');
           }
+
+          // Handle the successful authentication
+          await handleSuccessfulGoogleAuth(result.user);
+        } else {
+          console.log('ℹ️ No redirect result found - normal for initial page load');
         }
       } catch (error) {
-        toast.error(error.message);
+        console.error('❌ Redirect result error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Full error object:', error);
+
+        // Clear the redirect processing flag on error
+        sessionStorage.removeItem('redirectProcessed');
+
+        switch (error.code) {
+          case 'auth/popup-closed-by-user':
+            toast.info('Google sign-in was cancelled');
+            break;
+          case 'auth/cancelled-popup-request':
+            toast.info('Another sign-in request is in progress');
+            break;
+          case 'auth/popup-blocked':
+            toast.error('Popup was blocked by browser. Please allow popups for this site.');
+            break;
+          case 'auth/unauthorized-domain':
+            toast.error('This domain is not authorized for Google sign-in. Please check Firebase Console.');
+            console.error('🔧 Fix: Add your domain to Firebase Console > Authentication > Authorized domains');
+            break;
+          case 'auth/invalid-api-key':
+            toast.error('Invalid Firebase API key. Please check your .env file.');
+            break;
+          case 'auth/operation-not-allowed':
+            toast.error('Google sign-in is not enabled. Please enable it in Firebase Console.');
+            break;
+          case 'auth/invalid-credential':
+            toast.error('Invalid OAuth credential. Please try again.');
+            break;
+          default:
+            toast.error(`Google sign-in failed: ${error.message}`);
+        }
       }
     };
-    handleRedirectResult();
-  }, [navigate]);
+
+    // Only run if we haven't already processed a redirect
+    const redirectProcessed = sessionStorage.getItem('redirectProcessed');
+    const oauthStarted = sessionStorage.getItem('oauthStarted');
+
+    if (!redirectProcessed && oauthStarted) {
+      console.log('🚀 Processing OAuth redirect...');
+      handleRedirectResult();
+      sessionStorage.setItem('redirectProcessed', 'true');
+      sessionStorage.removeItem('oauthStarted'); // Clean up
+    } else if (!oauthStarted) {
+      console.log('ℹ️ No OAuth flow started, normal page load');
+    } else {
+      console.log('⏭️ Redirect already processed, skipping...');
+    }
+  }, []);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      console.log('User signed in:', user);
-
-      // Check if user has completed company setup
-      const hasCompletedSetup = localStorage.getItem(`companySetup_${user.uid}`);
-      console.log('Company setup status for user', user.uid, ':', hasCompletedSetup);
-
-      if (!hasCompletedSetup) {
-        console.log('Redirecting to company setup');
-        toast.success('Signed in successfully! Please complete your setup.');
-        navigate('/company-setup');
-      } else {
-        console.log('Redirecting to dashboard');
-        toast.success('Signed in successfully!');
-        navigate('/dashboard'); // or wherever existing users should go
-      }
+      console.log('User signed in:', userCredential.user);
+      toast.success('Signed in successfully!');
     } catch (error) {
       console.error('Login error:', error);
 
@@ -112,12 +135,119 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
+  // Function to check if user exists in the database
+  const checkUserExists = async (email) => {
     try {
-      await signInWithRedirect(auth, provider);
+      console.log('🔍 Checking if user exists:', email);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/users/check/${encodeURIComponent(email)}`);
+      console.log('✅ User check response:', response.data);
+      return response.data;
     } catch (error) {
-      toast.error(error.message);
+      if (error.response?.status === 404) {
+        console.log('ℹ️ User does not exist in database');
+        return { exists: false };
+      }
+      console.error('❌ Error checking user existence:', error);
+      throw error;
+    }
+  };
+
+  // Function to handle successful Google authentication
+  const handleSuccessfulGoogleAuth = async (user) => {
+    try {
+      console.log('🎉 Google authentication successful for:', user.email);
+      
+      // Check if user exists in our database
+      const userCheck = await checkUserExists(user.email);
+      
+      if (userCheck.exists) {
+        console.log('👤 Existing user found, navigating to dashboard');
+        toast.success(`Welcome back, ${user.displayName || user.email}!`);
+        navigate('/dashboard');
+      } else {
+        console.log('🆕 New user, navigating to company setup');
+        toast.success(`Welcome ${user.displayName || user.email}! Please complete your setup.`);
+        // Navigate to company setup with user data
+        navigate('/company-setup', { 
+          state: { 
+            userData: {
+              name: user.displayName || '',
+              email: user.email
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error in post-auth flow:', error);
+      toast.error('Authentication successful, but there was an error. Please try again.');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      console.log('🚀 Starting Google sign-in...');
+      console.log('Current auth state:', auth.currentUser ? 'User logged in' : 'No user');
+      console.log('Current URL before auth:', window.location.href);
+
+      // Use popup for development, redirect for production
+      if (import.meta.env.DEV) {
+        console.log('🔧 Development mode: Using popup authentication');
+        setIsLoading(true);
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log('✅ Google sign-in successful (popup):', result.user);
+        
+        // Handle the successful authentication
+        await handleSuccessfulGoogleAuth(result.user);
+      } else {
+        console.log('🏭 Production mode: Using redirect authentication');
+        // Clear any previous redirect processing flag
+        sessionStorage.removeItem('redirectProcessed');
+        console.log('🧹 Cleared previous redirect processing flag');
+
+        // Set a flag to indicate we're starting OAuth
+        sessionStorage.setItem('oauthStarted', 'true');
+
+        await signInWithRedirect(auth, googleProvider);
+        console.log('✅ Google sign-in redirect initiated successfully');
+      }
+
+    } catch (error) {
+      console.error('❌ Google sign-in error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+
+      // Clear flags on error
+      sessionStorage.removeItem('redirectProcessed');
+      sessionStorage.removeItem('oauthStarted');
+
+      switch (error.code) {
+        case 'auth/popup-closed-by-user':
+          toast.warning('Sign-in was cancelled');
+          break;
+        case 'auth/popup-blocked':
+          toast.error('Popup was blocked. Please allow popups and try again.');
+          break;
+        case 'auth/unauthorized-domain':
+          toast.error('This domain is not authorized for Google sign-in.');
+          console.error('🔧 Fix: Add your domain to Firebase Console > Authentication > Authorized domains');
+          console.error('   Current domain should be added:', window.location.origin);
+          break;
+        case 'auth/invalid-api-key':
+          toast.error('Invalid Firebase API key. Please check your .env file.');
+          break;
+        case 'auth/api-key-not-valid':
+          toast.error('Firebase API key is not valid. Please check Firebase Console.');
+          break;
+        case 'auth/operation-not-allowed':
+          toast.error('Google sign-in is not enabled. Please enable it in Firebase Console.');
+          console.error('🔧 Fix: Firebase Console > Authentication > Sign-in method > Google > Enable');
+          break;
+        default:
+          toast.error(`Google sign-in failed: ${error.message}`);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -158,36 +288,21 @@ const Login = () => {
               Don't have an account?
               <Link className="font-medium text-[var(--primary-color)] hover:text-blue-500 ml-1" to="/signup"> Sign up </Link>
             </p>
-            <p className="mt-1 text-center text-xs text-[var(--subtle-text-color)]">
-              <button
-                onClick={() => navigate('/company-setup')}
-                className="text-[var(--primary-color)] hover:text-blue-500 underline mr-4"
-              >
-                Test Company Setup
-              </button>
-              <button
-                onClick={() => {
-                  const user = auth.currentUser;
-                  if (user) {
-                    localStorage.removeItem(`companySetup_${user.uid}`);
-                    toast.info('Company setup status reset for testing');
-                  }
-                }}
-                className="text-orange-400 hover:text-orange-300 underline"
-              >
-                Reset Setup Status
-              </button>
-            </p>
           </div>
           <div className="space-y-6">
             <button
               onClick={handleGoogleSignIn}
-              className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-color)] bg-[var(--secondary-color)] hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-900 transition-all"
+              disabled={isLoading}
+              className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-color)] bg-[var(--secondary-color)] hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.945 11.055h-8.09v3.636h4.59c-.205 1.41-1.636 3.273-4.59 3.273-2.727 0-4.955-2.273-4.955-5.09s2.228-5.09 4.955-5.09c1.5 0 2.59.636 3.182 1.227l2.863-2.863C16.955 4.318 14.864 3 12.045 3 7.045 3 3.09 7.045 3.09 12s3.955 9 8.955 9c5.273 0 8.773-3.636 8.773-8.955 0-.636-.045-1.227-.136-1.99z"></path>
-              </svg>
-              Continue with Google
+              {isLoading ? (
+                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              ) : (
+                <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.945 11.055h-8.09v3.636h4.59c-.205 1.41-1.636 3.273-4.59 3.273-2.727 0-4.955-2.273-4.955-5.09s2.228-5.09 4.955-5.09c1.5 0 2.59.636 3.182 1.227l2.863-2.863C16.955 4.318 14.864 3 12.045 3 7.045 3 3.09 7.045 3.09 12s3.955 9 8.955 9c5.273 0 8.773-3.636 8.773-8.955 0-.636-.045-1.227-.136-1.99z"></path>
+                </svg>
+              )}
+              {isLoading ? 'Signing in...' : 'Continue with Google'}
             </button>
             <div className="relative">
               <div aria-hidden="true" className="absolute inset-0 flex items-center">
@@ -201,28 +316,46 @@ const Login = () => {
               <div className="relative">
                 <input
                   autoComplete="email"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
                   id="email"
                   name="email"
+                  placeholder="Email address"
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <label className="absolute left-4 top-4 text-[var(--subtle-text-color)] text-sm transition-all peer-focus:-top-3.5 peer-focus:text-[var(--primary-color)] peer-focus:text-xs" htmlFor="email">Email address</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="email">Email address</label>
               </div>
               <div className="relative">
                 <input
                   autoComplete="current-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
                   id="password"
                   name="password"
+                  placeholder="Password"
                   required
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <label className="absolute left-4 top-4 text-[var(--subtle-text-color)] text-sm transition-all peer-focus:-top-3.5 peer-focus:text-[var(--primary-color)] peer-focus:text-xs" htmlFor="password">Password</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="password">Password</label>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    className="h-4 w-4 rounded border-[var(--border-color)] bg-[var(--input-background)] text-[var(--primary-color)] focus:ring-[var(--primary-color)]"
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <label className="ml-2 block text-sm text-[var(--subtle-text-color)]" htmlFor="remember-me"> Remember me </label>
+                </div>
+                <div className="text-sm">
+                  <a className="font-medium text-[var(--primary-color)] hover:text-blue-500" href="#"> Forgot your password? </a>
+                </div>
               </div>
               <div>
                 <button className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[var(--primary-color)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 transition-all" type="submit">

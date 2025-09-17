@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { createUserWithEmailAndPassword, sendEmailVerification, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
+import { useState } from 'react';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '../firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,33 +10,6 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Handle redirect result on component mount
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          const user = result.user;
-          console.log('Google signup result:', user);
-
-          // Mark user as new (hasn't completed company setup yet)
-          localStorage.setItem(`companySetup_${user.uid}`, '');
-          console.log('Marked Google signup user as not completed setup:', user.uid);
-
-          toast.success('Account created with Google! Please complete your setup.');
-          // Navigate to company setup page for new users
-          setTimeout(() => {
-            console.log('Navigating to company setup from Google signup');
-            navigate('/company-setup');
-          }, 2000);
-        }
-      } catch (error) {
-        toast.error(error.message);
-      }
-    };
-    handleRedirectResult();
-  }, [navigate]);
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
@@ -65,14 +38,9 @@ const Signup = () => {
         toast.warning('Account created but verification email failed to send. You can still sign in.');
       }
 
-      // Mark user as new (hasn't completed company setup yet)
-      localStorage.setItem(`companySetup_${userCredential.user.uid}`, '');
-      console.log('Marked new user as not completed setup:', userCredential.user.uid);
-
-      // Navigate to company setup page after a short delay
+      // Navigate to login page after a short delay
       setTimeout(() => {
-        console.log('Navigating to company setup from signup');
-        navigate('/company-setup');
+        navigate('/login');
       }, 3000);
     } catch (error) {
       console.error('Signup error:', error);
@@ -99,15 +67,6 @@ const Signup = () => {
           toast.error(`Signup failed: ${error.message}`);
           console.log('Default error:', error.code, error.message);
       }
-    }
-  };
-
-  const handleGoogleSignUp = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      toast.error(error.message);
     }
   };
 
@@ -150,62 +109,48 @@ const Signup = () => {
             </p>
           </div>
           <div className="space-y-6">
-            <button
-              onClick={handleGoogleSignUp}
-              className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-[var(--text-color)] bg-[var(--secondary-color)] hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-900 transition-all"
-            >
-              <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.945 11.055h-8.09v3.636h4.59c-.205 1.41-1.636 3.273-4.59 3.273-2.727 0-4.955-2.273-4.955-5.09s2.228-5.09 4.955-5.09c1.5 0 2.59.636 3.182 1.227l2.863-2.863C16.955 4.318 14.864 3 12.045 3 7.045 3 3.09 7.045 3.09 12s3.955 9 8.955 9c5.273 0 8.773-3.636 8.773-8.955 0-.636-.045-1.227-.136-1.99z"></path>
-              </svg>
-              Continue with Google
-            </button>
-            <div className="relative">
-              <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[var(--border-color)]"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-[var(--background-color)] text-[var(--subtle-text-color)]"> OR </span>
-              </div>
-            </div>
             <form onSubmit={handleEmailSignUp} className="space-y-6">
               <div className="relative">
                 <input
                   autoComplete="email"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
                   id="email"
                   name="email"
+                  placeholder="Email address"
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <label className="absolute left-4 top-4 text-[var(--subtle-text-color)] text-sm transition-all peer-focus:-top-3.5 peer-focus:text-[var(--primary-color)] peer-focus:text-xs" htmlFor="email">Email address</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="email">Email address</label>
               </div>
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
                   id="password"
                   name="password"
+                  placeholder="Password"
                   required
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <label className="absolute left-4 top-4 text-[var(--subtle-text-color)] text-sm transition-all peer-focus:-top-3.5 peer-focus:text-[var(--primary-color)] peer-focus:text-xs" htmlFor="password">Password</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="password">Password</label>
               </div>
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
                   id="confirmPassword"
                   name="confirmPassword"
+                  placeholder="Confirm Password"
                   required
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-                <label className="absolute left-4 top-4 text-[var(--subtle-text-color)] text-sm transition-all peer-focus:-top-3.5 peer-focus:text-[var(--primary-color)] peer-focus:text-xs" htmlFor="confirmPassword">Confirm Password</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="confirmPassword">Confirm Password</label>
               </div>
               <div>
                 <button className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[var(--primary-color)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 transition-all" type="submit">

@@ -16,6 +16,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/company-setup" element={<CompanySetup />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        {/* Handle Firebase OAuth redirect */}
+        <Route path="/__/auth/handler" element={<Login />} />
       </Routes>
       <ToastContainer />
     </Router>
