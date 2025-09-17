@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { db, admin } = require("../database/db");
 
-// POST /users - add a new user
+// POST /admin - add a new admin
 router.post("/", async (req, res) => {
   try {
     const { name, email, companyName } = req.body;
