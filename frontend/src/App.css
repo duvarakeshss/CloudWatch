@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+/* Custom toast styling for dark theme */
+.Toastify__toast-container {
+  font-family: 'Inter', sans-serif;
+}
+
+.Toastify__toast--success {
+  background-color: #1c2127 !important;
+  border: 1px solid #10b981 !important;
+  color: #ffffff !important;
+}
+
+.Toastify__toast--error {
+  background-color: #1c2127 !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.Toastify__toast--warning {
+  background-color: #1c2127 !important;
+  border: 1px solid #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.Toastify__toast--info {
+  background-color: #1c2127 !important;
+  border: 1px solid #1173d4 !important;
+  color: #ffffff !important;
+}
+
+.Toastify__close-button {
+  color: #9dabb9 !important;
+  opacity: 0.7 !important;
+}
+
+.Toastify__close-button:hover {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.Toastify__progress-bar {
+  background: #1173d4 !important;
+}

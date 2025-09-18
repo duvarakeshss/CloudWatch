@@ -70,7 +70,7 @@ router.get("/:email", async (req, res) => {
   }
 });
 
-//GET /admin/check/:email - check user exists 
+//GET /admin/check/:email - check admin exists 
 router.get("/check/:email",async(req,res)=>{
    try {
     const { email } = req.params;
@@ -87,7 +87,7 @@ router.get("/check/:email",async(req,res)=>{
     }
 
     // Email exists
-    res.status(200).json({ exists: true, user: snapshot.docs[0].data() });
+    res.status(200).json({ exists: true, admin: snapshot.docs[0].data() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
