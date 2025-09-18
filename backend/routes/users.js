@@ -1,7 +1,56 @@
-const express = require("express");
-const router = express.Router();
-const { db, admin } = require("../database/db");
+import express from "express";
+import { db, admin } from "../database/db.js";
 
+const router = express.Router();
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - companyName
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: User's full name
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *               companyName:
+ *                 type: string
+ *                 description: Company name
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: Auto-generated user ID
+ *                 message:
+ *                   type: string
+ *                   example: "User added"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // POST /users - add a new user
 router.post("/", async (req, res) => {
   try {
@@ -15,13 +64,33 @@ router.post("/", async (req, res) => {
     });
 
     res.status(200).json({ id: docRef.id, message: "User added" });
-    console.log("User added with ID:", docRef.id);
   } catch (error) {
     res.status(500).json({ error: error.message });
-    console.error("Error adding user:", error);
   }
 });
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET /users - fetch all users
 router.get("/", async (req, res) => {
   try {
@@ -34,7 +103,54 @@ router.get("/", async (req, res) => {
   }
 });
 
-//GET /users/check/:email - check user exists 
+/**
+ * @swagger
+ * /users/check/{email}:
+ *   get:
+ *     summary: Check if user exists by email
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email to check
+ *     responses:
+ *       200:
+ *         description: User exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *                   example: true
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+//GET /users/check/:email - check user exists
 router.get("/check/:email",async(req,res)=>{
    try {
     const { email } = req.params;
@@ -56,6 +172,49 @@ router.get("/check/:email",async(req,res)=>{
     res.status(500).json({ error: error.message });
   }
 });
+
+/**
+ * @swagger
+ * /users/{email}:
+ *   delete:
+ *     summary: Delete user by email
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email to delete
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User with email user@example.com deleted successfully"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // DELETE /users/:email - delete user by email
 router.delete("/:email", async (req, res) => {
   try {
@@ -74,18 +233,71 @@ router.delete("/:email", async (req, res) => {
     });
 
     res.status(200).json({ message: `User with email ${email} deleted successfully` });
-    console.log(`User with email ${email} deleted`);
   } catch (error) {
-    console.error("Error deleting user:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
+/**
+ * @swagger
+ * /users/{email}:
+ *   put:
+ *     summary: Update user by email
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Updated user name
+ *               companyName:
+ *                 type: string
+ *                 description: Updated company name
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User with email user@example.com updated successfully"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // UPDATE /users/:email - update user by email
 router.put("/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const { name, companyName, age } = req.body; // pass any fields you want to update
+    const { name, companyName } = req.body; // pass any fields you want to update
 
     // Query users collection for this email
     const snapshot = await db.collection("users").where("email", "==", email).get();
@@ -99,19 +311,84 @@ router.put("/:email", async (req, res) => {
       await db.collection("users").doc(doc.id).update({
         ...(name && { name }),
         ...(companyName && { companyName }),
-        ...(age && { age }),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     });
 
     res.status(200).json({ message: `User with email ${email} updated successfully` });
-    console.log(`User with email ${email} updated`);
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
+/**
+ * @swagger
+ * /users/machine:
+ *   post:
+ *     summary: Add a machine for a user
+ *     tags: [Machines]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - machineId
+ *               - location
+ *               - userEmail
+ *             properties:
+ *               machineId:
+ *                 type: string
+ *                 description: Unique machine identifier
+ *               location:
+ *                 type: string
+ *                 description: Machine location
+ *               userEmail:
+ *                 type: string
+ *                 format: email
+ *                 description: User email to associate machine with
+ *     responses:
+ *       201:
+ *         description: Machine added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: Auto-generated machine ID
+ *                 message:
+ *                   type: string
+ *                   example: "Machine added successfully"
+ *       400:
+ *         description: Missing required fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "machineId, location, and userEmail are required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // ADD a Machine - /users/machine
 router.post("/machine", async (req, res) => {
   try {
@@ -144,14 +421,65 @@ router.post("/machine", async (req, res) => {
       id: machineRef.id,
       message: "Machine added successfully",
     });
-
-    console.log(`✅ Machine ${machineId} added for User ${userEmail} (UserId: ${userId})`);
   } catch (error) {
-    console.error("Error adding machine:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
+/**
+ * @swagger
+ * /users/machine/{email}:
+ *   get:
+ *     summary: Get machines for a user by email
+ *     tags: [Machines]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email to get machines for
+ *     responses:
+ *       200:
+ *         description: List of user's machines
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   description: User email
+ *                 machines:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       machineId:
+ *                         type: string
+ *                         description: Machine identifier
+ *                       location:
+ *                         type: string
+ *                         description: Machine location
+ *       404:
+ *         description: User or machines not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET machines for a user by email - /users/machine/:email
 router.get("/machine/:email", async (req, res) => {
   try {
@@ -182,13 +510,59 @@ router.get("/machine/:email", async (req, res) => {
     }));
 
     res.status(200).json({ email, machines });
-    console.log(`✅ Fetched machines for User ${email}`);
   } catch (error) {
-    console.error("Error fetching machines:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
+/**
+ * @swagger
+ * /users/machine/{email}/{machineId}:
+ *   delete:
+ *     summary: Delete a specific machine for a user
+ *     tags: [Machines]
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *         description: User email
+ *       - in: path
+ *         name: machineId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Machine ID to delete
+ *     responses:
+ *       200:
+ *         description: Machine deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Machine with ID M001 for user user@example.com deleted successfully"
+ *       404:
+ *         description: User or machine not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // DELETE machine by email and machineId - /users/machine/:email/:machineId
 router.delete("/machine/:email/:machineId", async (req, res) => {
   try {
@@ -223,12 +597,9 @@ router.delete("/machine/:email/:machineId", async (req, res) => {
     res.status(200).json({
       message: `Machine with ID ${machineId} for user ${email} deleted successfully`,
     });
-
-    console.log(`✅ Deleted Machine ${machineId} for User ${email}`);
   } catch (error) {
-    console.error("Error deleting machine:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-module.exports = router;
+export default router;

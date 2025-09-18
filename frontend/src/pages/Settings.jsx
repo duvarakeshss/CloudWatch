@@ -25,7 +25,7 @@ const Settings = () => {
     setError(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.get(`${apiUrl}/users/machine/${user.email}`);
 
       // Handle different response formats
@@ -123,7 +123,7 @@ const Settings = () => {
 
     setDeletingMachineId(machineToDelete.name);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       await axios.delete(`${apiUrl}/users/machine/${user.email}/${machineToDelete.name}`);
 
       toast.success('Machine deleted successfully');

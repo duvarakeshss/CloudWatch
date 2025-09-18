@@ -54,7 +54,7 @@ const AddMachine = () => {
     setIsSubmitting(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const userEmail = localStorage.getItem('userEmail') || user?.email;
 
       const machineData = {

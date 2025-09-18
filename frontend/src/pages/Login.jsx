@@ -125,7 +125,7 @@ const Login = () => {
   // Function to check if user exists in the database
   const checkUserExists = async (email) => {
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.get(`${apiUrl}/users/check/${encodeURIComponent(email)}`);
       return response.data;
     } catch (error) {

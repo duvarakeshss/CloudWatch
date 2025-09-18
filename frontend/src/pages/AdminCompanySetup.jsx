@@ -36,7 +36,7 @@ const AdminCompanySetup = () => {
       setIsLoading(true);
       console.log('🚀 Creating new admin:', { name, email, companyName });
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.post(`${apiUrl}/admin`, {
         name: name.trim(),
         email: email.trim(),

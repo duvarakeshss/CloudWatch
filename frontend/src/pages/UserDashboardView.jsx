@@ -5,7 +5,6 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 import { useTheme } from '../contexts/ThemeContext';
 
 const UserDashboardView = () => {
@@ -26,7 +25,7 @@ const UserDashboardView = () => {
     setError(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await axios.get(`${apiUrl}/users/machine/${userEmail}`);
 
       // Handle different response formats

@@ -94,8 +94,8 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-      const response = await axios.get(`${apiUrl}/admin/coderdk05@gmail.com`);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await axios.get(`${apiUrl}/admin/${userEmail}`);
 
       console.log('API Response:', response.data);
 
@@ -128,8 +128,8 @@ const AdminDashboard = () => {
   const refreshTableData = async () => {
     try {
       // Don't set global loading state to avoid UI disruption
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-      const response = await axios.get(`${apiUrl}/admin/coderdk05@gmail.com`);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await axios.get(`${apiUrl}/admin/${userEmail}`);
 
       if (response.data && response.data.users) {
         const transformedUsers = response.data.users.map(user => ({
@@ -174,7 +174,7 @@ const AdminDashboard = () => {
   const handleSaveEdit = async () => {
     try {
       setLoading(true);
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       
       const updateData = {
         name: editForm.username,
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
   const handleDeleteUser = async (userEmail) => {
     try {
       setLoading(true);
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
       
       await axios.delete(`${apiUrl}/users/${userEmail}`);
       
