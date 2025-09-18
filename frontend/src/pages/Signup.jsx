@@ -77,7 +77,7 @@ const Signup = () => {
             --secondary-color: #283039;
             --text-color: #ffffff;
             --subtle-text-color: #9dabb9;
-            --background-color: #111418;
+            --background-color: #000000;
             --input-background: #1c2127;
             --border-color: #3b4754;
           }
@@ -111,7 +111,7 @@ const Signup = () => {
               <div className="relative">
                 <input
                   autoComplete="email"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4 transition-all duration-200 hover:border-[var(--primary-color)] focus:outline-none"
                   id="email"
                   name="email"
                   placeholder="Email address"
@@ -120,12 +120,12 @@ const Signup = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="email">Email address</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)] bg-[var(--input-background)] px-1" htmlFor="email">Email address</label>
               </div>
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4 transition-all duration-200 hover:border-[var(--primary-color)] focus:outline-none"
                   id="password"
                   name="password"
                   placeholder="Password"
@@ -134,12 +134,12 @@ const Signup = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="password">Password</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)] bg-[var(--input-background)] px-1" htmlFor="password">Password</label>
               </div>
               <div className="relative">
                 <input
                   autoComplete="new-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-md focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4"
+                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4 transition-all duration-200 hover:border-[var(--primary-color)] focus:outline-none"
                   id="confirmPassword"
                   name="confirmPassword"
                   placeholder="Confirm Password"
@@ -148,10 +148,10 @@ const Signup = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)]" htmlFor="confirmPassword">Confirm Password</label>
+                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)] bg-[var(--input-background)] px-1" htmlFor="confirmPassword">Confirm Password</label>
               </div>
               <div>
-                <button className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[var(--primary-color)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-[var(--background-color)] transition-all" type="submit">
+                <button className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--primary-color)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-color)] focus:ring-offset-[var(--background-color)] transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" type="submit">
                   Create Account
                 </button>
               </div>

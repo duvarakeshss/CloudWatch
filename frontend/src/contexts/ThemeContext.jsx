@@ -69,7 +69,7 @@ export const ThemeProvider = ({ children }) => {
       '--secondary-color': '#1e293b',
       '--text-color': '#ffffff',
       '--subtle-text-color': '#94a3b8',
-      '--background-color': '#0f172a',
+      '--background-color': '#000000',
       '--input-background': '#1e293b',
       '--border-color': '#334155',
       '--success-color': '#22c55e',

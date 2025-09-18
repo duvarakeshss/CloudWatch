@@ -7,7 +7,7 @@ const options = {
     info: {
       title: 'CloudWatch API',
       version: '1.0.0',
-      description: 'API documentation for CloudWatch application - User and Admin management system',
+      description: 'API documentation for CloudWatch application',
     },
     servers: [
       {
