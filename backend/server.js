@@ -27,10 +27,10 @@ app.use("/admin", adminRoutes);
 
 // Default route
 app.get("/", (req, res) => {
-  res.send(`🚀 Server running at: http://172.16.121.127:${PORT}`);
+  res.send(`🚀 Server running at: http://192.168.1.107:${PORT}`);
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at: http://172.16.121.127:${PORT}`);
+  console.log(`🚀 Server running at: http://192.168.1.107:${PORT}`);
 });
