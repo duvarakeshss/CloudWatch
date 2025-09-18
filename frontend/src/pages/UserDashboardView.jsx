@@ -1,37 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import Navbar from '../components/Navbar';
-import { Loading, InlineLoading } from '../components';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import { useTheme } from '../contexts/ThemeContext';
 
-const Dashboard = () => {
-  const { user, loading: authLoading } = useAuth();
+const UserDashboardView = () => {
   const { theme } = useTheme();
+  const { userEmail } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [deletingMachineId, setDeletingMachineId] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [machineToDelete, setMachineToDelete] = useState(null);
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch machines from API
+  // Fetch machines from API for the specific user
   const fetchMachines = async () => {
-    if (!user?.email) return;
+    if (!userEmail) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-      const response = await axios.get(`${apiUrl}/users/machine/${user.email}`);
+      const apiUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await axios.get(`${apiUrl}/users/machine/${userEmail}`);
 
       // Handle different response formats
       let machinesData = [];
@@ -72,47 +67,11 @@ const Dashboard = () => {
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      
+
       setError(errorMessage);
       setMachines([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Show delete confirmation modal
-  const showDeleteConfirmation = (machine) => {
-    setMachineToDelete(machine);
-    setShowDeleteConfirm(true);
-  };
-
-  // Hide delete confirmation modal
-  const hideDeleteConfirmation = () => {
-    setShowDeleteConfirm(false);
-    setMachineToDelete(null);
-  };
-
-  // Delete machine from API
-  const deleteMachine = async () => {
-    if (!user?.email || !machineToDelete) return;
-
-    setDeletingMachineId(machineToDelete.name);
-    hideDeleteConfirmation();
-
-    try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-      await axios.delete(`${apiUrl}/users/machine/${user.email}/${machineToDelete.name}`);
-
-      toast.success(`Machine "${machineToDelete.name}" deleted successfully`);
-
-      // Remove machine from local state
-      setMachines(prevMachines => prevMachines.filter(machine => machine.name !== machineToDelete.name));
-
-    } catch (error) {
-      console.error('Error deleting machine:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete machine');
-    } finally {
-      setDeletingMachineId(null);
     }
   };
 
@@ -138,26 +97,14 @@ const Dashboard = () => {
     return { lat: 20, lng: 0 };
   };
 
+  // Fetch user data and machines on component mount
   useEffect(() => {
-    // Check if user is authenticated and not an admin
-    if (!authLoading) {
-      if (user) {
-        const userType = localStorage.getItem('userType');
-        if (userType === 'admin') {
-          navigate('/admin-dashboard');
-        }
-      } else {
-        navigate('/login');
-      }
-    }
-  }, [user, authLoading, navigate]);
-
-  // Fetch machines when user is set
-  useEffect(() => {
-    if (user && !authLoading) {
+    if (userEmail) {
       fetchMachines();
+      // Set user data for display
+      setUserData({ email: userEmail });
     }
-  }, [user, authLoading]);
+  }, [userEmail]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -200,14 +147,6 @@ const Dashboard = () => {
     machine.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     machine.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[var(--background-color)]">
-        <div className="animate-spin h-8 w-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -279,36 +218,52 @@ const Dashboard = () => {
       </style>
 
       {/* Header */}
-      <Navbar user={user} isAdmin={false} />
+      <Navbar isAdmin={true} />
 
       {/* Main Content */}
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 h-[calc(100vh-80px)]">
         {/* Machines Sidebar */}
         <div className="lg:col-span-1 bg-[var(--card-background)] rounded-lg p-6 flex flex-col h-[calc(100vh-120px)] overflow-hidden border border-[var(--border-color)]/50 shadow-sm">
+          {/* Header with Back Button */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-[var(--text-color)]">Machines</h2>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/admin-dashboard')}
+                className="group flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[var(--secondary-color)] to-[var(--input-background)] border border-[var(--border-color)] text-[var(--text-color)] rounded-lg hover:border-[var(--primary-color)] hover:shadow-lg hover:shadow-[var(--primary-color)]/20 transition-all duration-300 hover:scale-105"
+                title="Back to Admin Dashboard"
+              >
+                <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
+              </button>
+              <h2 className="text-2xl font-bold text-[var(--text-color)]">User Machines</h2>
+            </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(`/admin/user-reports/${userEmail}`)}
+                className="flex items-center justify-center w-8 h-8 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 text-sm"
+                title="View User Reports"
+              >
+                <span className="material-symbols-outlined text-sm">analytics</span>
+              </button>
               <button
                 onClick={fetchMachines}
                 disabled={loading}
                 className="flex items-center gap-1 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] px-2.5 py-1.5 rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--subtle-text-color)] disabled:hover:border-[var(--subtle-text-color)]"
                 title="Refresh machines"
               >
-                {loading ? (
-                  <InlineLoading size="sm" />
-                ) : (
-                  <span className="material-symbols-outlined text-base">refresh</span>
-                )}
-              </button>
-              <button
-                onClick={() => navigate('/add-machine')}
-                className="flex items-center gap-1.5 bg-transparent border border-[var(--primary-color)] text-[var(--primary-color)] px-3 py-1.5 rounded-lg hover:bg-[var(--primary-color)] hover:text-[var(--text-color)] transition-all duration-200 shadow-sm hover:shadow-md text-sm font-medium"
-              >
-                <span className="material-symbols-outlined text-base">add</span>
-                <span>Add Machine</span>
+                <span className={`material-symbols-outlined text-base transition-transform duration-200 ${loading ? 'animate-spin' : ''}`}>
+                  {loading ? 'refresh' : 'refresh'}
+                </span>
               </button>
             </div>
           </div>
+
+          {/* User Info */}
+          {userData && (
+            <div className="mb-4 p-3 bg-[var(--input-background)] rounded-md border border-[var(--border-color)]">
+              <p className="text-sm text-[var(--subtle-text-color)]">Viewing machines for:</p>
+              <p className="font-semibold text-[var(--text-color)]">{userData.email}</p>
+            </div>
+          )}
 
           {/* Search Bar */}
           <div className="relative mb-4">
@@ -326,7 +281,7 @@ const Dashboard = () => {
           <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar min-h-0">
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <Loading size="lg" text="Loading machines..." />
+                <div className="animate-spin h-8 w-8 border-2 border-[var(--primary-color)] border-t-transparent rounded-full"></div>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -338,7 +293,7 @@ const Dashboard = () => {
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <span className="material-symbols-outlined text-4xl text-[var(--subtle-text-color)] mb-2">inventory_2</span>
                 <p className="text-[var(--text-color)] font-medium mb-1">No machines found</p>
-                <p className="text-[var(--subtle-text-color)] text-sm">Add your first machine to get started</p>
+                <p className="text-[var(--subtle-text-color)] text-sm">This user has no machines yet</p>
               </div>
             ) : (
               filteredMachines.map((machine) => (
@@ -372,22 +327,6 @@ const Dashboard = () => {
                     }`}>
                       {machine.status}
                     </span>
-                    {/* Delete button - appears on hover */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        showDeleteConfirmation(machine);
-                      }}
-                      disabled={deletingMachineId === machine.name}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 rounded-md hover:bg-red-500/20 disabled:opacity-50"
-                      title="Delete machine"
-                    >
-                      <span className={`material-symbols-outlined text-lg ${
-                        deletingMachineId === machine.name ? 'text-[var(--subtle-text-color)]' : 'text-red-400 hover:text-red-300'
-                      }`}>
-                        {deletingMachineId === machine.name ? 'hourglass_empty' : 'delete'}
-                      </span>
-                    </button>
                   </div>
                 </div>
               ))
@@ -396,7 +335,7 @@ const Dashboard = () => {
         </div>
 
         {/* Map Section */}
-        <div className="lg:col-span-2 bg-[var(--secondary-color)] rounded-lg overflow-hidden h-[calc(100vh-120px)]">
+        <div className="lg:col-span-2 bg-[var(--card-background)] rounded-lg overflow-hidden h-[calc(100vh-120px)] border border-[var(--border-color)]/50 shadow-sm">
           <MapContainer
             center={[20, 0]}
             zoom={2}
@@ -438,87 +377,9 @@ const Dashboard = () => {
             ))}
           </MapContainer>
         </div>
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && machineToDelete && (
-          <div className="fixed inset-0 bg-[var(--background-color)]/80 backdrop-blur-md z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="bg-[var(--secondary-color)] border border-[var(--border-color)] rounded-xl p-8 max-w-md w-full mx-4 shadow-2xl relative z-[10000] transform transition-all duration-200 ease-out scale-100">
-              {/* Header with Icon */}
-              <div className="flex items-start gap-4 mb-6">
-                <div className="flex-shrink-0 w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-2xl text-red-400">delete_forever</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-[var(--text-color)] mb-1">Delete Machine</h3>
-                  <p className="text-sm text-[var(--subtle-text-color)] leading-relaxed">
-                    This action cannot be undone and will permanently remove the machine from your dashboard.
-                  </p>
-                </div>
-              </div>
-
-              {/* Machine Details */}
-              <div className="bg-[var(--input-background)] rounded-lg p-4 mb-6 border border-[var(--border-color)]">
-                <div className="flex items-center gap-3">
-                  <span className={`material-symbols-outlined text-xl ${
-                    machineToDelete.status === 'online' ? 'text-[var(--success-color)]' :
-                    machineToDelete.status === 'idle' ? 'text-[var(--warning-color)]' :
-                    'text-red-500'
-                  }`}>
-                    {getStatusIcon(machineToDelete.status)}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-[var(--text-color)] text-lg">{machineToDelete.name}</p>
-                    <p className="text-sm text-[var(--subtle-text-color)]">{machineToDelete.location}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Warning Message */}
-              <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-lg text-red-400 mt-0.5">warning</span>
-                  <div>
-                    <p className="text-sm font-medium text-red-400 mb-1">Warning</p>
-                    <p className="text-sm text-[var(--subtle-text-color)]">
-                      Deleting this machine will remove all associated data, monitoring history, and configurations.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={hideDeleteConfirmation}
-                  className="px-6 py-2.5 text-[var(--text-color)] hover:bg-[var(--input-background)] rounded-lg transition-all duration-200 font-medium border border-transparent hover:border-[var(--border-color)]"
-                  disabled={deletingMachineId === machineToDelete.name}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={deleteMachine}
-                  disabled={deletingMachineId === machineToDelete.name}
-                  className="px-6 py-2.5 bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl disabled:shadow-none flex items-center gap-2 min-w-[100px] justify-center"
-                >
-                  {deletingMachineId === machineToDelete.name ? (
-                    <>
-                      <span className="material-symbols-outlined text-sm animate-spin">hourglass_empty</span>
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                      Delete
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
 };
 
-export default Dashboard;
+export default UserDashboardView;
