@@ -149,19 +149,20 @@ const UserDashboardView = () => {
   );
 
   return (
-    <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="bg-[var(--background-color)] min-h-screen flex flex-col overflow-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>
         {`
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
 
           #root {
             height: 100vh;
-            overflow: hidden;
+            overflow: auto;
           }
           :root {
             --primary-color: #1173d4;
@@ -214,6 +215,39 @@ const UserDashboardView = () => {
           .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: var(--subtle-text-color);
           }
+
+          /* Mobile-specific styles */
+          @media (max-width: 1024px) {
+            .leaflet-control-container {
+              font-size: 14px;
+            }
+            
+            .leaflet-popup-content-wrapper {
+              font-size: 14px;
+            }
+          }
+
+          @media (max-width: 768px) {
+            .leaflet-control-container {
+              font-size: 12px;
+            }
+            
+            .leaflet-popup-content-wrapper {
+              font-size: 12px;
+              max-width: 200px;
+            }
+          }
+
+          /* Touch-friendly interactions */
+          .touch-manipulation {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+          }
+
+          /* Improved mobile scrolling */
+          .mobile-scroll {
+            -webkit-overflow-scrolling: touch;
+          }
         `}
       </style>
 
@@ -221,25 +255,25 @@ const UserDashboardView = () => {
       <Navbar isAdmin={true} />
 
       {/* Main Content */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 h-[calc(100vh-80px)]">
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 p-4 lg:p-8 min-h-0 h-full">
         {/* Machines Sidebar */}
-        <div className="lg:col-span-1 bg-[var(--card-background)] rounded-lg p-6 flex flex-col h-[calc(100vh-120px)] overflow-hidden border border-[var(--border-color)]/50 shadow-sm">
+        <div className="w-full lg:w-1/3 bg-[var(--card-background)] rounded-lg p-4 lg:p-6 flex flex-col min-h-[50vh] lg:h-[calc(100vh-120px)] overflow-hidden border border-[var(--border-color)]/50 shadow-sm">
           {/* Header with Back Button */}
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/admin-dashboard')}
-                className="group flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[var(--secondary-color)] to-[var(--input-background)] border border-[var(--border-color)] text-[var(--text-color)] rounded-lg hover:border-[var(--primary-color)] hover:shadow-lg hover:shadow-[var(--primary-color)]/20 transition-all duration-300 hover:scale-105"
+                className="group flex items-center justify-center w-12 h-12 lg:w-10 lg:h-10 bg-gradient-to-r from-[var(--secondary-color)] to-[var(--input-background)] border border-[var(--border-color)] text-[var(--text-color)] rounded-lg hover:border-[var(--primary-color)] hover:shadow-lg hover:shadow-[var(--primary-color)]/20 transition-all duration-300 hover:scale-105 touch-manipulation"
                 title="Back to Admin Dashboard"
               >
                 <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform duration-300">arrow_back</span>
               </button>
-              <h2 className="text-2xl font-bold text-[var(--text-color)]">User Machines</h2>
+              <h2 className="text-xl lg:text-2xl font-bold text-[var(--text-color)]">User Machines</h2>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(`/admin/user-reports/${userEmail}`)}
-                className="flex items-center justify-center w-8 h-8 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 text-sm"
+                className="flex items-center justify-center w-12 h-12 lg:w-8 lg:h-8 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 touch-manipulation"
                 title="View User Reports"
               >
                 <span className="material-symbols-outlined text-sm">analytics</span>
@@ -247,7 +281,7 @@ const UserDashboardView = () => {
               <button
                 onClick={fetchMachines}
                 disabled={loading}
-                className="flex items-center gap-1 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] px-2.5 py-1.5 rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--subtle-text-color)] disabled:hover:border-[var(--subtle-text-color)]"
+                className="flex items-center gap-1 bg-transparent border border-[var(--subtle-text-color)] text-[var(--subtle-text-color)] px-3 py-2 lg:px-2.5 lg:py-1.5 rounded-md hover:border-[var(--primary-color)] hover:text-[var(--primary-color)] hover:bg-[var(--primary-color)]/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--subtle-text-color)] disabled:hover:border-[var(--subtle-text-color)] touch-manipulation"
                 title="Refresh machines"
               >
                 <span className={`material-symbols-outlined text-base transition-transform duration-200 ${loading ? 'animate-spin' : ''}`}>
@@ -259,17 +293,17 @@ const UserDashboardView = () => {
 
           {/* User Info */}
           {userData && (
-            <div className="mb-4 p-3 bg-[var(--input-background)] rounded-md border border-[var(--border-color)]">
-              <p className="text-sm text-[var(--subtle-text-color)]">Viewing machines for:</p>
-              <p className="font-semibold text-[var(--text-color)]">{userData.email}</p>
+            <div className="mb-4 p-3 lg:p-3 bg-[var(--input-background)] rounded-md border border-[var(--border-color)]">
+              <p className="text-sm lg:text-sm text-[var(--subtle-text-color)]">Viewing machines for:</p>
+              <p className="font-semibold text-base lg:text-base text-[var(--text-color)]">{userData.email}</p>
             </div>
           )}
 
           {/* Search Bar */}
           <div className="relative mb-4">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--subtle-text-color)]"> search </span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[var(--subtle-text-color)] text-lg lg:text-base"> search </span>
             <input
-              className="w-full bg-[var(--input-background)] text-[var(--text-color)] border border-[var(--border-color)] rounded-md pl-10 pr-4 py-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)]"
+              className="w-full bg-[var(--input-background)] text-[var(--text-color)] border border-[var(--border-color)] rounded-md pl-12 lg:pl-10 pr-4 py-3 lg:py-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] text-base lg:text-base"
               placeholder="Search machines..."
               type="text"
               value={searchTerm}
@@ -278,7 +312,7 @@ const UserDashboardView = () => {
           </div>
 
           {/* Machines List */}
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar mobile-scroll min-h-0">
             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin h-8 w-8 border-2 border-[var(--primary-color)] border-t-transparent rounded-full"></div>
@@ -299,10 +333,10 @@ const UserDashboardView = () => {
               filteredMachines.map((machine) => (
                 <div
                   key={machine.id}
-                  className="group flex items-center justify-between p-3 bg-[var(--input-background)] rounded-md cursor-pointer hover:bg-[var(--secondary-color)] transition-colors relative"
+                  className="group flex items-center justify-between p-4 lg:p-3 bg-[var(--input-background)] rounded-md cursor-pointer hover:bg-[var(--secondary-color)] transition-colors relative touch-manipulation"
                 >
                   <div className="flex items-center gap-4 flex-1">
-                    <span className={`material-symbols-outlined text-3xl ${
+                    <span className={`material-symbols-outlined text-4xl lg:text-3xl ${
                       machine.status === 'online' ? 'text-[var(--success-color)]' :
                       machine.status === 'idle' ? 'text-[var(--warning-color)]' :
                       'text-red-500'
@@ -310,17 +344,17 @@ const UserDashboardView = () => {
                       {getStatusIcon(machine.status)}
                     </span>
                     <div>
-                      <p className="font-semibold text-[var(--text-color)]">{machine.name}</p>
-                      <p className="text-sm text-[var(--subtle-text-color)]">{machine.location}</p>
+                      <p className="font-semibold text-[var(--text-color)] text-base lg:text-base">{machine.name}</p>
+                      <p className="text-sm lg:text-sm text-[var(--subtle-text-color)]">{machine.location}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${
+                    <div className={`w-4 h-4 lg:w-3 lg:h-3 rounded-full ${
                       machine.status === 'online' ? 'bg-[var(--success-color)]' :
                       machine.status === 'idle' ? 'bg-[var(--warning-color)]' :
                       'bg-red-500'
                     }`}></div>
-                    <span className={`text-sm capitalize ${
+                    <span className={`text-sm lg:text-sm capitalize font-medium ${
                       machine.status === 'online' ? 'text-[var(--success-color)]' :
                       machine.status === 'idle' ? 'text-[var(--warning-color)]' :
                       'text-red-500'
@@ -335,13 +369,17 @@ const UserDashboardView = () => {
         </div>
 
         {/* Map Section */}
-        <div className="lg:col-span-2 bg-[var(--card-background)] rounded-lg overflow-hidden h-[calc(100vh-120px)] border border-[var(--border-color)]/50 shadow-sm">
+        <div className="w-full lg:w-2/3 bg-[var(--card-background)] rounded-lg overflow-hidden min-h-[60vh] lg:h-[calc(100vh-120px)] border border-[var(--border-color)]/50 shadow-sm flex flex-col">
           <MapContainer
             center={[20, 0]}
             zoom={2}
-            style={{ height: '100%', width: '100%' }}
-            className="rounded-lg"
+            style={{ height: '100%', width: '100%', minHeight: '400px' }}
+            className="rounded-lg flex-1"
             attributionControl={false}
+            zoomControl={true}
+            scrollWheelZoom={true}
+            touchZoom={true}
+            doubleClickZoom={true}
           >
             <TileLayer
               attribution=''

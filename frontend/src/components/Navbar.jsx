@@ -11,6 +11,7 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
   const { theme } = useTheme();
   const [user, setUser] = useState(propUser || contextUser || null);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,6 +32,9 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.profile-dropdown')) {
         setIsProfileDropdownOpen(false);
+      }
+      if (!event.target.closest('.mobile-menu') && !event.target.closest('.hamburger-button')) {
+        setIsMobileMenuOpen(false);
       }
     };
 
@@ -111,6 +115,17 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
 
         {/* Actions */}
         <div className="flex items-center gap-3">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="hamburger-button md:hidden group relative p-3 rounded-xl hover:bg-[var(--input-background)] transition-all duration-300 hover:shadow-lg touch-manipulation"
+          >
+            <span className="material-symbols-outlined text-lg text-[var(--subtle-text-color)] group-hover:text-[var(--text-color)] transition-colors duration-300">
+              {isMobileMenuOpen ? 'close' : 'menu'}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary-color)]/10 to-[var(--primary-color)]/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </button>
+
           {/* Quick Actions */}
           <div className="hidden md:flex items-center gap-1">
             <button className="group relative p-2.5 rounded-xl hover:bg-[var(--input-background)] transition-all duration-300 hover:shadow-lg">
@@ -202,6 +217,76 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
           )}
         </div>
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {isMobileMenuOpen && (
+        <div className={`mobile-menu md:hidden absolute top-full left-0 right-0 bg-[var(--secondary-color)]/95 backdrop-blur-xl border-t border-[var(--border-color)]/50 shadow-2xl shadow-black/20 z-[10000] transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+        }`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5"></div>
+        <div className="relative px-4 py-6 space-y-2">
+            {!adminStatus && (
+              <>
+                {/* User Navigation for Mobile */}
+                <button
+                  onClick={() => {
+                    navigate('/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-4 text-sm font-medium rounded-lg transition-all duration-300 touch-manipulation ${
+                    location.pathname === '/dashboard'
+                      ? 'text-[var(--text-color)] bg-[var(--primary-color)]/10 border border-[var(--primary-color)]/20'
+                      : 'text-[var(--subtle-text-color)] hover:text-[var(--text-color)] hover:bg-[var(--input-background)]'
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-base">desktop_windows</span>
+                    Machines
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/reports');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-4 text-sm font-medium rounded-lg transition-all duration-300 touch-manipulation ${
+                    location.pathname === '/reports'
+                      ? 'text-[var(--text-color)] bg-[var(--primary-color)]/10 border border-[var(--primary-color)]/20'
+                      : 'text-[var(--subtle-text-color)] hover:text-[var(--text-color)] hover:bg-[var(--input-background)]'
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-base">analytics</span>
+                    Reports
+                  </div>
+                </button>
+                <div className="border-t border-[var(--border-color)]/30 my-4"></div>
+              </>
+            )}
+
+            {/* Common Actions for Mobile */}
+            <button
+              onClick={() => {
+                navigate(adminStatus ? "/admin/settings" : "/settings");
+                setIsMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-4 py-4 text-sm font-medium rounded-lg transition-all duration-300 touch-manipulation ${
+                (location.pathname === '/settings' || location.pathname === '/admin/settings')
+                  ? 'text-[var(--text-color)] bg-[var(--primary-color)]/10 border border-[var(--primary-color)]/20'
+                  : 'text-[var(--subtle-text-color)] hover:text-[var(--text-color)] hover:bg-[var(--input-background)]'
+              }`}>
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-base">settings</span>
+                Settings
+              </div>
+            </button>
+            <button className="w-full text-left px-4 py-4 text-sm text-[var(--subtle-text-color)] hover:text-[var(--text-color)] hover:bg-[var(--input-background)] transition-all duration-200 rounded-lg touch-manipulation">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-base">help</span>
+                Help & Support
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

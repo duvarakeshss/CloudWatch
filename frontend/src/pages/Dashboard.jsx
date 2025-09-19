@@ -210,19 +210,21 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="bg-[var(--background-color)] min-h-screen flex flex-col overflow-auto" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>
         {`
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
 
           #root {
-            height: 100vh;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
           :root {
             --primary-color: #1173d4;
@@ -282,9 +284,9 @@ const Dashboard = () => {
       <Navbar user={user} isAdmin={false} />
 
       {/* Main Content */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8 p-8 h-[calc(100vh-80px)]">
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 p-4 lg:p-8 min-h-0">
         {/* Machines Sidebar */}
-        <div className="lg:col-span-1 bg-[var(--card-background)] rounded-lg p-6 flex flex-col h-[calc(100vh-120px)] overflow-hidden border border-[var(--border-color)]/50 shadow-sm">
+        <div className="w-full lg:w-1/3 bg-[var(--card-background)] rounded-lg p-4 lg:p-6 flex flex-col min-h-[50vh] lg:min-h-[60vh] overflow-hidden border border-[var(--border-color)]/50 shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-[var(--text-color)]">Machines</h2>
             <div className="flex items-center gap-2">
@@ -396,13 +398,17 @@ const Dashboard = () => {
         </div>
 
         {/* Map Section */}
-        <div className="lg:col-span-2 bg-[var(--secondary-color)] rounded-lg overflow-hidden h-[calc(100vh-120px)]">
+        <div className="w-full lg:w-2/3 bg-[var(--secondary-color)] rounded-lg overflow-hidden min-h-[50vh] lg:min-h-[60vh] border border-[var(--border-color)]/50 shadow-sm flex flex-col">
           <MapContainer
             center={[20, 0]}
             zoom={2}
-            style={{ height: '100%', width: '100%' }}
-            className="rounded-lg"
+            style={{ height: '100%', width: '100%', minHeight: '400px' }}
+            className="rounded-lg flex-1"
             attributionControl={false}
+            zoomControl={true}
+            scrollWheelZoom={true}
+            touchZoom={true}
+            doubleClickZoom={true}
           >
             <TileLayer
               attribution=''

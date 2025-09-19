@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../utils/firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,7 +14,15 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // No redirect handling needed since we're using popup authentication
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !sessionStorage.getItem('authProcessed')) {
+        sessionStorage.setItem('authProcessed', 'true');
+        handleSuccessfulGoogleAuth(user);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -127,9 +135,10 @@ const AdminLogin = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true);
-      const result = await signInWithPopup(auth, googleProvider);
 
-      // Handle the successful authentication
+      // Always use popup authentication for better user experience
+      console.log('Using popup authentication');
+      const result = await signInWithPopup(auth, googleProvider);
       await handleSuccessfulGoogleAuth(result.user);
 
     } catch (error) {

@@ -82,14 +82,15 @@ const AdminSettings = () => {
   };
 
   return (
-    <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="bg-[var(--background-color)] min-h-screen flex flex-col overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       <style>
         {`
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
           :root {
             --primary-color: #1173d4;
@@ -110,7 +111,7 @@ const AdminSettings = () => {
       <Navbar isAdmin={true} />
 
       {/* Main Content */}
-      <main className="flex-1 p-8 h-[calc(100vh-80px)] overflow-y-auto">
+      <main className="flex-1 p-4 lg:p-8 min-h-0 overflow-y-auto">
         <div className="max-w-4xl mx-auto">
           {/* Header with Back Button */}
           <div className="flex items-center gap-4 mb-8">

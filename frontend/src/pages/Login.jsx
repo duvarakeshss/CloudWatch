@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { useState, useEffect } from 'react';
+import { signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../utils/firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +12,42 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle redirect result on component mount (for mobile devices)
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          console.log('Redirect auth successful:', result.user);
+          await handleSuccessfulGoogleAuth(result.user);
+        }
+      } catch (error) {
+        console.error('Redirect result error:', error);
+        if (error.code !== 'auth/user-cancelled' && error.code !== 'auth/popup-closed-by-user') {
+          toast.error(`Authentication failed: ${error.message}`);
+        }
+      }
+    };
+
+    // Check if we're returning from a redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    const isRedirect = urlParams.has('code') || urlParams.has('state');
+
+    if (isRedirect) {
+      handleRedirectResult();
+    }
+
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !sessionStorage.getItem('authProcessed')) {
+        sessionStorage.setItem('authProcessed', 'true');
+        handleSuccessfulGoogleAuth(user);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -109,10 +145,9 @@ const Login = () => {
     try {
       setIsLoading(true);
 
-      // Always use popup for better user experience
+      // Always use popup authentication for better user experience
+      console.log('Using popup authentication');
       const result = await signInWithPopup(auth, googleProvider);
-
-      // Handle the successful authentication
       await handleSuccessfulGoogleAuth(result.user);
 
     } catch (error) {
@@ -123,7 +158,7 @@ const Login = () => {
           toast.warning('Sign-in was cancelled');
           break;
         case 'auth/popup-blocked':
-          toast.error('Popup was blocked. Please allow popups and try again.');
+          toast.error('Popup was blocked. Please allow popups for this site and try again, or use a different browser.');
           break;
         case 'auth/cancelled-popup-request':
           toast.info('Another sign-in request is in progress');

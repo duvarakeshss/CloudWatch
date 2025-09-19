@@ -149,19 +149,21 @@ const Settings = () => {
   };
 
   return (
-    <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="bg-[var(--background-color)] min-h-screen flex flex-col overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       <style>
         {`
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
 
           #root {
-            height: 100vh;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
           :root {
             --primary-color: #1173d4;

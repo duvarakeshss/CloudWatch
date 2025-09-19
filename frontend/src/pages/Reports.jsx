@@ -75,14 +75,15 @@ const Reports = () => {
   const maxActivityValue = Math.max(...loginActivityData.map(d => d.value));
 
   return (
-    <div className="bg-[var(--background-color)] min-h-screen overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="bg-[var(--background-color)] min-h-screen flex flex-col overflow-auto" style={{ fontFamily: 'Inter, sans-serif' }}>
       <style>
         {`
           html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            min-height: 100vh;
+            overflow: auto;
           }
           :root {
             --primary-color: #1173d4;
@@ -101,48 +102,66 @@ const Reports = () => {
 
       <Navbar user={user} isAdmin={false} />
 
-      <div className="flex h-screen w-full">
+      <div className="flex min-h-screen w-full flex-col overflow-auto">
         {/* Main Content - Full Width */}
         <main className="flex-1">
           <div className="p-4">
-            <header className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-[var(--text-color)]">Overall Report</h1>
-                <p className="text-sm text-[var(--subtle-text-color)]">Summary of data from all machines connected to your account.</p>
-              </div>
-              <div className="flex items-center gap-4">
-                {/* Time Period Selector */}
-                <div className="flex items-center gap-2 rounded-md bg-[var(--input-background)] p-1">
-                  {['Daily', 'Weekly', 'Monthly', 'Annual'].map((period) => (
-                    <label
-                      key={period}
-                      className={`cursor-pointer rounded-md px-3 py-1 text-sm transition-colors ${
-                        timePeriod === period
-                          ? 'bg-[var(--primary-color)] text-white'
-                          : 'text-[var(--subtle-text-color)] hover:text-[var(--text-color)]'
-                      }`}
-                    >
-                      <input
-                        className="sr-only"
-                        name="time-period"
-                        type="radio"
-                        value={period}
-                        checked={timePeriod === period}
-                        onChange={(e) => setTimePeriod(e.target.value)}
-                      />
-                      {period}
-                    </label>
-                  ))}
+            <header className="mb-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="flex-1">
+                  <h1 className="text-2xl lg:text-3xl font-bold text-[var(--text-color)] mb-2">Overall Report</h1>
+
+                  {/* Time Period Selector */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 rounded-md bg-[var(--input-background)] p-1">
+                      {['Daily', 'Weekly', 'Monthly', 'Annual'].map((period, index) => (
+                        <label
+                          key={period}
+                          className={`cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                            timePeriod === period
+                              ? 'bg-[var(--primary-color)] text-white'
+                              : 'text-[var(--subtle-text-color)] hover:text-[var(--text-color)]'
+                          }`}
+                        >
+                          <input
+                            className="sr-only"
+                            name="time-period"
+                            type="radio"
+                            value={period}
+                            checked={timePeriod === period}
+                            onChange={(e) => setTimePeriod(e.target.value)}
+                          />
+                          {period}
+                        </label>
+                      ))}
+
+                      {/* Download Button - Mobile (inline after Annual) */}
+                      <button
+                        onClick={handleDownloadReport}
+                        className="sm:hidden ml-2 flex items-center gap-1 rounded-md bg-[var(--primary-color)] px-2 py-1 text-xs font-medium text-white hover:bg-blue-600 transition-colors"
+                        title="Download Report"
+                      >
+                        <span className="material-symbols-outlined text-sm">download</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subtext */}
+                  <p className="text-sm text-[var(--subtle-text-color)] leading-relaxed">
+                    Summary of data from all machines connected to your account for the selected time period.
+                  </p>
                 </div>
 
-                {/* Download Button */}
-                <button
-                  onClick={handleDownloadReport}
-                  className="flex items-center gap-2 rounded-md bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
-                >
-                  <span className="material-symbols-outlined">download</span>
-                  Download Report
-                </button>
+                {/* Download Button - Desktop */}
+                <div className="hidden sm:block">
+                  <button
+                    onClick={handleDownloadReport}
+                    className="flex items-center gap-2 rounded-md bg-[var(--primary-color)] px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">download</span>
+                    Download Report
+                  </button>
+                </div>
               </div>
             </header>
 
