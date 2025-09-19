@@ -63,6 +63,11 @@ export const ThemeProvider = ({ children }) => {
       '--table-row-hover-border': '#cbd5e1',
       '--table-header-bg': '#f5f7fa',
       '--card-background': '#ffffff',
+      '--hover-background': '#e2e8f0',
+      '--hover-border': '#cbd5e1',
+      '--button-hover-bg': '#0284c7',
+      '--input-hover-border': '#0ea5e9',
+      '--color-primary-hover': '#0284c7',
     },
     dark: {
       '--primary-color': '#1173d4',
@@ -79,6 +84,11 @@ export const ThemeProvider = ({ children }) => {
       '--table-row-hover-border': '#334155',
       '--table-header-bg': '#1a2332',
       '--card-background': '#1a2332',
+      '--hover-background': '#334155',
+      '--hover-border': '#475569',
+      '--button-hover-bg': '#1d4ed8',
+      '--input-hover-border': '#1173d4',
+      '--color-primary-hover': '#1d4ed8',
     }
   };
 
@@ -91,7 +101,7 @@ export const ThemeProvider = ({ children }) => {
       root.style.setProperty(property, value);
     });
 
-    // Also set a data attribute for additional styling
+    // Set data attribute for additional styling
     root.setAttribute('data-theme', actualTheme);
   }, [actualTheme]);
 

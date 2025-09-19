@@ -238,10 +238,10 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--background-color)]" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[var(--border-color)] px-10 py-4">
-        <div className="flex items-center gap-3 text-[var(--text-color)]">
-          <svg className="h-8 w-8 text-[var(--primary-color)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <div className="flex flex-col h-screen" style={{ backgroundColor: 'var(--color-background)', fontFamily: "'Inter', sans-serif" }}>
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid px-10 py-4" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="flex items-center gap-3" style={{ color: 'var(--color-text)' }}>
+          <svg className="h-8 w-8" style={{ color: 'var(--color-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
@@ -250,96 +250,133 @@ const AdminLogin = () => {
         <div className="flex items-center gap-4">
           <button 
             onClick={toggleTheme}
-            className="p-2 rounded-full hover:bg-[var(--input-background)] transition-colors"
+            className="p-2 rounded-full transition-colors hover:bg-[var(--hover-background)]"
             title={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
+            style={{ backgroundColor: 'var(--color-input-background)' }}
           >
-            <span className="material-symbols-outlined text-[var(--text-color)]">
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-text)' }}>
               {actualTheme === 'light' ? 'dark_mode' : 'light_mode'}
             </span>
           </button>
-          <button className="p-2 rounded-full hover:bg-[var(--input-background)] transition-colors">
-            <span className="material-symbols-outlined text-[var(--text-color)]"> help </span>
+          <button className="p-2 rounded-full transition-colors hover:bg-[var(--hover-background)]" style={{ backgroundColor: 'var(--color-input-background)' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-text)' }}> help </span>
           </button>
         </div>
       </header>
-      <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-[var(--text-color)]">Admin Sign In</h2>
-            <p className="mt-2 text-center text-sm text-[var(--subtle-text-color)]">
-              Don't have an admin account?
-              <Link className="font-medium text-[var(--primary-color)] hover:text-blue-500 ml-1 transition-colors duration-200" to="/admin-signup"> Sign up </Link>
-            </p>
-          </div>
-          <div className="space-y-6">
-            <button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full flex justify-center items-center gap-3 py-3 px-4 border border-[var(--border-color)] rounded-lg text-sm font-medium text-[var(--subtle-text-color)] bg-[var(--input-background)] hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-color)] focus:ring-offset-[var(--background-color)] transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isLoading ? (
-                <div className="animate-spin h-5 w-5 border-2 border-[var(--text-color)] border-t-transparent rounded-full"></div>
-              ) : (
-                <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.945 11.055h-8.09v3.636h4.59c-.205 1.41-1.636 3.273-4.59 3.273-2.727 0-4.955-2.273-4.955-5.09s2.228-5.09 4.955-5.09c1.5 0 2.59.636 3.182 1.227l2.863-2.863C16.955 4.318 14.864 3 12.045 3 7.045 3 3.09 7.045 3.09 12s3.955 9 8.955 9c5.273 0 8.773-3.636 8.773-8.955 0-.636-.045-1.227-.136-1.99z"></path>
-                </svg>
-              )}
-              {isLoading ? 'Signing in...' : 'Continue with Google'}
-            </button>
-            <div className="relative">
-              <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[var(--border-color)]"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-[var(--background-color)] text-[var(--subtle-text-color)] rounded-full border border-[var(--border-color)]"> OR </span>
-              </div>
+      <main className="flex-1 flex items-center justify-center py-6 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
+          <div className="rounded-xl shadow-2xl p-6 space-y-6" style={{ backgroundColor: 'var(--color-input-background)', border: '1px solid var(--color-border)' }}>
+            <div>
+              <h2 className="mt-4 text-center text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text)' }}>Admin Sign In</h2>
+              <p className="mt-1 text-center text-sm" style={{ color: 'var(--color-subtle-text)' }}>
+                Don't have an admin account?
+                <Link className="font-medium hover:text-[var(--color-primary-hover)] ml-1 transition-colors duration-200" style={{ color: 'var(--color-primary)' }} to="/admin-signup"> Sign up </Link>
+              </p>
             </div>
-            <form onSubmit={handleEmailSignIn} className="space-y-6">
+            <div className="space-y-6">
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full flex justify-center items-center gap-3 py-3 px-4 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 hover:bg-[var(--hover-background)]"
+                style={{ 
+                  color: 'var(--color-text)', 
+                  backgroundColor: 'var(--color-input-background)',
+                  border: '1px solid var(--color-border)',
+                  '--tw-ring-color': 'var(--color-primary)',
+                  '--tw-ring-offset-color': 'var(--color-input-background)'
+                }}
+              >
+                {isLoading ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-t-transparent rounded-full" style={{ borderColor: 'var(--color-text)', borderTopColor: 'transparent' }}></div>
+                ) : (
+                  <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.945 11.055h-8.09v3.636h4.59c-.205 1.41-1.636 3.273-4.59 3.273-2.727 0-4.955-2.273-4.955-5.09s2.228-5.09 4.955-5.09c1.5 0 2.59.636 3.182 1.227l2.863-2.863C16.955 4.318 14.864 3 12.045 3 7.045 3 3.09 7.045 3.09 12s3.955 9 8.955 9c5.273 0 8.773-3.636 8.773-8.955 0-.636-.045-1.227-.136-1.99z"></path>
+                  </svg>
+                )}
+                {isLoading ? 'Signing in...' : 'Continue with Google'}
+              </button>
               <div className="relative">
-                <input
-                  autoComplete="email"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4 transition-all duration-200 hover:border-[var(--primary-color)] focus:outline-none"
-                  id="email"
-                  name="email"
-                  placeholder="Email address"
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)] bg-[var(--input-background)] px-1" htmlFor="email">Email address</label>
+                <div aria-hidden="true" className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-3 rounded-full border" style={{ backgroundColor: 'var(--color-input-background)', color: 'var(--color-subtle-text)', borderColor: 'var(--color-border)' }}> OR </span>
+                </div>
               </div>
-              <div className="relative">
-                <input
-                  autoComplete="current-password"
-                  className="peer h-14 w-full border border-[var(--border-color)] bg-[var(--input-background)] text-[var(--text-color)] placeholder-transparent rounded-lg focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-4 transition-all duration-200 hover:border-[var(--primary-color)] focus:outline-none"
-                  id="password"
-                  name="password"
-                  placeholder="Password"
-                  required
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <label className="absolute left-4 -top-3.5 text-[var(--subtle-text-color)] text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:text-[var(--subtle-text-color)] peer-placeholder-shown:top-3.5 peer-focus:-top-3.5 peer-focus:text-sm peer-focus:text-[var(--primary-color)] bg-[var(--input-background)] px-1" htmlFor="password">Password</label>
-              </div>
-              <div>
-                <button 
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--primary-color)] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-color)] focus:ring-offset-[var(--background-color)] transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                      Signing in...
-                    </div>
-                  ) : (
-                    'Sign in'
-                  )}
-                </button>
-              </div>
-            </form>
+              <form onSubmit={handleEmailSignIn} className="space-y-6">
+                <div className="relative">
+                  <input
+                    autoComplete="email"
+                    className="peer h-14 w-full border rounded-lg p-4 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
+                    style={{ 
+                      backgroundColor: 'var(--color-background)', 
+                      color: 'var(--color-text)', 
+                      borderColor: 'var(--color-border)',
+                      '--tw-ring-color': 'var(--color-primary)'
+                    }}
+                    id="email"
+                    name="email"
+                    placeholder="Email address"
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <label className="absolute left-4 -top-3.5 text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-3.5 px-1" 
+                         style={{ 
+                           color: 'var(--color-subtle-text)', 
+                           backgroundColor: 'var(--color-background)'
+                         }} 
+                         htmlFor="email">Email address</label>
+                </div>
+                <div className="relative">
+                  <input
+                    autoComplete="current-password"
+                    className="peer h-14 w-full border rounded-lg p-4 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
+                    style={{ 
+                      backgroundColor: 'var(--color-background)', 
+                      color: 'var(--color-text)', 
+                      borderColor: 'var(--color-border)',
+                      '--tw-ring-color': 'var(--color-primary)'
+                    }}
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <label className="absolute left-4 -top-3.5 text-sm transition-all duration-200 peer-placeholder-shown:text-base peer-placeholder-shown:top-3.5 px-1" 
+                         style={{ 
+                           color: 'var(--color-subtle-text)', 
+                           backgroundColor: 'var(--color-background)'
+                         }} 
+                         htmlFor="password">Password</label>
+                </div>
+                <div>
+                  <button 
+                    className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white hover:bg-[var(--button-hover-bg)] focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100" 
+                    style={{ 
+                      backgroundColor: 'var(--color-primary)',
+                      '--tw-ring-color': 'var(--color-primary)',
+                      '--tw-ring-offset-color': 'var(--color-input-background)'
+                    }}
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                        Signing in...
+                      </div>
+                    ) : (
+                      'Sign in'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </main>

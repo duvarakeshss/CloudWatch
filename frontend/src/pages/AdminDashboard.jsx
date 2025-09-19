@@ -89,13 +89,15 @@ const AdminDashboard = () => {
   };
 
   // Function to fetch users from API
-  const fetchUsers = async () => {
+  const fetchUsers = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (!isRefresh) {
+        setLoading(true);
+      }
       setError(null);
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const response = await axios.get(`${apiUrl}/admin/${userEmail}`);
+      const response = await axios.get(`${apiUrl}/admin/${adminUser?.email}`);
 
       console.log('API Response:', response.data);
 
@@ -111,6 +113,9 @@ const AdminDashboard = () => {
         }));
 
         setUsers(transformedUsers);
+        if (isRefresh) {
+          toast.success('User list refreshed');
+        }
       } else {
         setError('Invalid response format from API');
       }
@@ -120,34 +125,15 @@ const AdminDashboard = () => {
       // Fallback to empty array
       setUsers([]);
     } finally {
-      setLoading(false);
+      if (!isRefresh) {
+        setLoading(false);
+      }
     }
   };
 
   // Optimized refresh function that only updates table data
   const refreshTableData = async () => {
-    try {
-      // Don't set global loading state to avoid UI disruption
-      const apiUrl = import.meta.env.VITE_API_BASE_URL;
-      const response = await axios.get(`${apiUrl}/admin/${userEmail}`);
-
-      if (response.data && response.data.users) {
-        const transformedUsers = response.data.users.map(user => ({
-          id: user.id,
-          username: user.name || user.email.split('@')[0],
-          email: user.email,
-          registrationDate: decodeFirebaseTimestamp(user.createdAt),
-          status: 'Active',
-          companyName: user.companyName
-        }));
-
-        setUsers(transformedUsers);
-        toast.success('User list refreshed');
-      }
-    } catch (error) {
-      console.error('Error refreshing users:', error);
-      toast.error('Failed to refresh user list');
-    }
+    await fetchUsers(true);
   };
 
   // Function to handle user edit
@@ -192,7 +178,7 @@ const AdminDashboard = () => {
       });
       
       // Refresh the users list
-      await fetchUsers();
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error updating user:', error);
       toast.error(error.response?.data?.message || 'Failed to update user');
@@ -213,7 +199,7 @@ const AdminDashboard = () => {
       setShowDeleteConfirm(null);
       
       // Refresh the users list
-      await fetchUsers();
+      await fetchUsers(true);
     } catch (error) {
       console.error('Error deleting user:', error);
       toast.error(error.response?.data?.message || 'Failed to delete user');
@@ -230,7 +216,7 @@ const AdminDashboard = () => {
     }));
   };
 
-  // Load admin user data from localStorage and fetch users
+  // Load admin user data from localStorage on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('adminUser');
     if (storedUser) {
@@ -245,10 +231,14 @@ const AdminDashboard = () => {
         console.error('Error parsing admin user data:', error);
       }
     }
-
-    // Fetch users from API
-    fetchUsers();
   }, []);
+
+  // Fetch users when adminUser changes (but not on initial mount)
+  useEffect(() => {
+    if (adminUser?.email) {
+      fetchUsers();
+    }
+  }, [adminUser?.email]);
 
   // Filter and search users
   const filteredUsers = users.filter(user => {

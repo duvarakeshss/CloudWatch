@@ -1,4 +1,31 @@
-@import "tailwindcss";
+@import "tailwindcss" layer(base);
+
+@layer base {
+  :root {
+    --color-primary: theme(colors.sky.500);
+    --color-primary-dark: theme(colors.blue.600);
+    --color-secondary: theme(colors.slate.800);
+    --color-text: theme(colors.slate.900);
+    --color-text-dark: theme(colors.white);
+    --color-subtle-text: theme(colors.slate.500);
+    --color-subtle-text-dark: theme(colors.slate.400);
+    --color-background: theme(colors.slate.50);
+    --color-background-dark: theme(colors.black);
+    --color-input-background: theme(colors.slate.100);
+    --color-input-background-dark: theme(colors.slate.800);
+    --color-border: theme(colors.slate.200);
+    --color-border-dark: theme(colors.slate.700);
+  }
+
+  html[data-theme="dark"] {
+    --color-primary: var(--color-primary-dark);
+    --color-text: var(--color-text-dark);
+    --color-subtle-text: var(--color-subtle-text-dark);
+    --color-background: var(--color-background-dark);
+    --color-input-background: var(--color-input-background-dark);
+    --color-border: var(--color-border-dark);
+  }
+}
 
 /* Global smooth scrolling */
 html {
