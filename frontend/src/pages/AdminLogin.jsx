@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, signInWithRedirect, signInWithPopup, getRedirectResult } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../utils/firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,65 +14,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Handle redirect result on component mount
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          // Clear the redirect processing flag
-          sessionStorage.removeItem('redirectProcessed');
-
-          // Navigate to admin login page if we're on the auth handler
-          if (window.location.pathname === '/__/auth/handler') {
-            window.history.replaceState(null, null, '/admin-login');
-          }
-
-          // Handle the successful authentication
-          await handleSuccessfulGoogleAuth(result.user);
-        }
-      } catch (error) {
-        console.error('Redirect result error:', error);
-
-        // Clear the redirect processing flag on error
-        sessionStorage.removeItem('redirectProcessed');
-
-        switch (error.code) {
-          case 'auth/popup-closed-by-user':
-            toast.info('Google sign-in was cancelled');
-            break;
-          case 'auth/cancelled-popup-request':
-            toast.info('Another sign-in request is in progress');
-            break;
-          case 'auth/popup-blocked':
-            toast.error('Popup was blocked by browser. Please allow popups for this site.');
-            break;
-          case 'auth/unauthorized-domain':
-            toast.error('This domain is not authorized for Google sign-in. Please check Firebase Console.');
-            break;
-          case 'auth/invalid-api-key':
-            toast.error('Invalid Firebase API key. Please check your .env file.');
-            break;
-          case 'auth/operation-not-allowed':
-            toast.error('Google sign-in is not enabled. Please enable it in Firebase Console.');
-            break;
-          case 'auth/invalid-credential':
-            toast.error('Invalid OAuth credential. Please try again.');
-            break;
-          default:
-            toast.error(`Google sign-in failed: ${error.message}`);
-        }
-      }
-    };
-
-    // Only run if we haven't already processed a redirect
-    const redirectProcessed = sessionStorage.getItem('redirectProcessed');
-    const oauthStarted = sessionStorage.getItem('oauthStarted');
-
-    if (!redirectProcessed && oauthStarted) {
-      handleRedirectResult();
-      sessionStorage.setItem('redirectProcessed', 'true');
-      sessionStorage.removeItem('oauthStarted'); // Clean up
-    }
+    // No redirect handling needed since we're using popup authentication
   }, []);
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -184,28 +126,14 @@ const AdminLogin = () => {
   };
   const handleGoogleSignIn = async () => {
     try {
-      // Use popup for development, redirect for production
-      if (import.meta.env.DEV) {
-        setIsLoading(true);
-        const result = await signInWithPopup(auth, googleProvider);
+      setIsLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
 
-        // Handle the successful authentication
-        await handleSuccessfulGoogleAuth(result.user);
-      } else {
-        // Clear any previous redirect processing flag
-        sessionStorage.removeItem('redirectProcessed');
-
-        // Set a flag to indicate we're starting OAuth
-        sessionStorage.setItem('oauthStarted', 'true');
-
-        await signInWithRedirect(auth, googleProvider);
-      }
+      // Handle the successful authentication
+      await handleSuccessfulGoogleAuth(result.user);
 
     } catch (error) {
       console.error('Google sign-in error:', error);
-
-      // Clear the redirect processing flag on error
-      sessionStorage.removeItem('redirectProcessed');
 
       switch (error.code) {
         case 'auth/popup-closed-by-user':

@@ -44,7 +44,19 @@ app.use((err, req, res, next) => {
 
 // Routes
 app.use("/users", userRoutes);
-app.use("/admin", adminRoutes);// Default route
+app.use("/admin", adminRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    message: "CloudWatch Backend is healthy"
+  });
+});
+
+// Default route
 app.get("/", (req, res) => {
   const host = req.hostname || req.ip || 'localhost';
   const message = `🚀 Server running at: http://${host}:${PORT}`;

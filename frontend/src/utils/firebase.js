@@ -11,12 +11,7 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// For development, we need to handle OAuth redirects differently
-// because Firebase will try to redirect to the authDomain
-if (import.meta.env.DEV) {
-  // Note: You'll need to add localhost:5173 to your Firebase Console
-  // under Authentication > Settings > Authorized domains
-}
+
 
 // Validate configuration
 if (!firebaseConfig.apiKey) {
@@ -73,10 +68,3 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-// Configure auth for development environment
-if (import.meta.env.DEV) {
-  // Note: OAuth redirects should work automatically with proper Firebase Console configuration
-  // Make sure to add your development domain to Firebase Console > Authentication > Authorized domains
-}
-
-// Log Firebase initialization status

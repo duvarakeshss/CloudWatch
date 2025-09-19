@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, signInWithRedirect, signInWithPopup, getRedirectResult } from 'firebase/auth';
+import { useState } from 'react';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../utils/firebase';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,69 +12,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Handle redirect result on component mount
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          // Clear the redirect processing flag
-          sessionStorage.removeItem('redirectProcessed');
-
-          // Navigate to login page if we're on the auth handler
-          if (window.location.pathname === '/__/auth/handler') {
-            window.history.replaceState(null, null, '/login');
-          }
-
-          // Handle the successful authentication
-          await handleSuccessfulGoogleAuth(result.user);
-        }
-      } catch (error) {
-        console.error('Redirect result error:', error);
-
-        // Clear the redirect processing flag on error
-        sessionStorage.removeItem('redirectProcessed');
-
-        switch (error.code) {
-          case 'auth/popup-closed-by-user':
-            toast.info('Google sign-in was cancelled');
-            break;
-          case 'auth/cancelled-popup-request':
-            toast.info('Another sign-in request is in progress');
-            break;
-          case 'auth/popup-blocked':
-            toast.error('Popup was blocked by browser. Please allow popups for this site.');
-            break;
-          case 'auth/unauthorized-domain':
-            toast.error('This domain is not authorized for Google sign-in. Please check Firebase Console.');
-            console.error('🔧 Fix: Add your domain to Firebase Console > Authentication > Authorized domains');
-            break;
-          case 'auth/invalid-api-key':
-            toast.error('Invalid Firebase API key. Please check your .env file.');
-            break;
-          case 'auth/operation-not-allowed':
-            toast.error('Google sign-in is not enabled. Please enable it in Firebase Console.');
-            break;
-          case 'auth/invalid-credential':
-            toast.error('Invalid OAuth credential. Please try again.');
-            break;
-          default:
-            toast.error(`Google sign-in failed: ${error.message}`);
-        }
-      }
-    };
-
-    // Only run if we haven't already processed a redirect
-    const redirectProcessed = sessionStorage.getItem('redirectProcessed');
-    const oauthStarted = sessionStorage.getItem('oauthStarted');
-
-    if (!redirectProcessed && oauthStarted) {
-      handleRedirectResult();
-      sessionStorage.setItem('redirectProcessed', 'true');
-      sessionStorage.removeItem('oauthStarted'); // Clean up
-    }
-  }, []);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -170,27 +107,16 @@ const Login = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      // Use popup for development, redirect for production
-      if (import.meta.env.DEV) {
-        setIsLoading(true);
-        const result = await signInWithPopup(auth, googleProvider);
+      setIsLoading(true);
 
-        // Handle the successful authentication
-        await handleSuccessfulGoogleAuth(result.user);
-      } else {
-        // Clear any previous redirect processing flag
-        sessionStorage.removeItem('redirectProcessed');
+      // Always use popup for better user experience
+      const result = await signInWithPopup(auth, googleProvider);
 
-        // Set a flag to indicate we're starting OAuth
-        sessionStorage.setItem('oauthStarted', 'true');
+      // Handle the successful authentication
+      await handleSuccessfulGoogleAuth(result.user);
 
-        await signInWithRedirect(auth, googleProvider);
-      }    } catch (error) {
+    } catch (error) {
       console.error('Google sign-in error:', error);
-
-      // Clear flags on error
-      sessionStorage.removeItem('redirectProcessed');
-      sessionStorage.removeItem('oauthStarted');
 
       switch (error.code) {
         case 'auth/popup-closed-by-user':
@@ -199,17 +125,21 @@ const Login = () => {
         case 'auth/popup-blocked':
           toast.error('Popup was blocked. Please allow popups and try again.');
           break;
+        case 'auth/cancelled-popup-request':
+          toast.info('Another sign-in request is in progress');
+          break;
         case 'auth/unauthorized-domain':
-          toast.error('This domain is not authorized for Google sign-in.');
+          toast.error('This domain is not authorized for Google sign-in. Please check Firebase Console.');
+          console.error('🔧 Fix: Add your domain to Firebase Console > Authentication > Authorized domains');
           break;
         case 'auth/invalid-api-key':
           toast.error('Invalid Firebase API key. Please check your .env file.');
           break;
-        case 'auth/api-key-not-valid':
-          toast.error('Firebase API key is not valid. Please check Firebase Console.');
-          break;
         case 'auth/operation-not-allowed':
           toast.error('Google sign-in is not enabled. Please enable it in Firebase Console.');
+          break;
+        case 'auth/invalid-credential':
+          toast.error('Invalid OAuth credential. Please try again.');
           break;
         default:
           toast.error(`Google sign-in failed: ${error.message}`);
