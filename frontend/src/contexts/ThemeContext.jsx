@@ -83,7 +83,7 @@ export const ThemeProvider = ({ children }) => {
       '--table-row-hover-bg': '#1e293b',
       '--table-row-hover-border': '#334155',
       '--table-header-bg': '#1a2332',
-      '--card-background': '#1a2332',
+      '--card-background': '#0f172a',
       '--hover-background': '#334155',
       '--hover-border': '#475569',
       '--button-hover-bg': '#1d4ed8',

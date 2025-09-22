@@ -11,6 +11,8 @@ const AdminSignup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   // Theme toggle function
@@ -89,24 +91,24 @@ const AdminSignup = () => {
           <h1 className="text-xl font-bold">CloudWatch Admin</h1>
         </div>
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={toggleTheme}
             className="p-2 rounded-full transition-colors hover:bg-[var(--hover-background)]"
             title={`Switch to ${actualTheme === 'light' ? 'dark' : 'light'} mode`}
-            style={{ backgroundColor: 'var(--color-input-background)' }}
+            style={{ backgroundColor: 'transparent' }}
           >
             <span className="material-symbols-outlined" style={{ color: 'var(--color-text)' }}>
               {actualTheme === 'light' ? 'dark_mode' : 'light_mode'}
             </span>
           </button>
-          <button className="p-2 rounded-full transition-colors hover:bg-[var(--hover-background)]" style={{ backgroundColor: 'var(--color-input-background)' }}>
+          <button className="p-2 rounded-full transition-colors hover:bg-[var(--hover-background)]" style={{ backgroundColor: 'transparent' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--color-text)' }}> help </span>
           </button>
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md">
-          <div className="rounded-xl shadow-2xl p-8 space-y-8" style={{ backgroundColor: 'var(--color-input-background)', border: '1px solid var(--color-border)' }}>
+          <div className="rounded-xl shadow-2xl p-8 space-y-8" style={{ backgroundColor: 'var(--card-background)', border: '1px solid var(--color-border)' }}>
             <div>
               <h2 className="mt-6 text-center text-3xl font-bold tracking-tight" style={{ color: 'var(--color-text)' }}>Create admin account</h2>
               <p className="mt-2 text-center text-sm" style={{ color: 'var(--color-subtle-text)' }}>
@@ -144,7 +146,7 @@ const AdminSignup = () => {
                 <div className="relative">
                   <input
                     autoComplete="new-password"
-                    className="peer h-14 w-full border rounded-lg p-4 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
+                    className="peer h-14 w-full border rounded-lg p-4 pr-12 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
                     style={{ 
                       backgroundColor: 'var(--color-background)', 
                       color: 'var(--color-text)', 
@@ -155,7 +157,7 @@ const AdminSignup = () => {
                     name="password"
                     placeholder="Password"
                     required
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -165,11 +167,21 @@ const AdminSignup = () => {
                            backgroundColor: 'var(--color-background)'
                          }} 
                          htmlFor="password">Password</label>
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-subtle-text)] hover:text-[var(--color-text)] transition-colors duration-200"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ backgroundColor: 'transparent', border: 'none' }}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {showPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
                 </div>
                 <div className="relative">
                   <input
                     autoComplete="new-password"
-                    className="peer h-14 w-full border rounded-lg p-4 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
+                    className="peer h-14 w-full border rounded-lg p-4 pr-12 transition-all duration-200 focus:outline-none focus:ring-2 hover:border-[var(--input-hover-border)]"
                     style={{ 
                       backgroundColor: 'var(--color-background)', 
                       color: 'var(--color-text)', 
@@ -180,7 +192,7 @@ const AdminSignup = () => {
                     name="confirmPassword"
                     placeholder="Confirm Password"
                     required
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
@@ -190,6 +202,16 @@ const AdminSignup = () => {
                            backgroundColor: 'var(--color-background)'
                          }} 
                          htmlFor="confirmPassword">Confirm Password</label>
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-subtle-text)] hover:text-[var(--color-text)] transition-colors duration-200"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{ backgroundColor: 'transparent', border: 'none' }}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {showConfirmPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
                 </div>
                 <div>
                   <button 
