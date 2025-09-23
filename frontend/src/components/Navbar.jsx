@@ -75,7 +75,7 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[var(--text-color)] to-[var(--subtle-text-color)] bg-clip-text text-transparent">CloudWatch</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[var(--text-color)] to-[var(--subtle-text-color)] bg-clip-text text-transparent">DotWatch</h1>
               <p className="text-xs text-[var(--subtle-text-color)] font-medium">
                 {adminStatus ? 'Admin Dashboard' : 'Monitoring Dashboard'}
               </p>
@@ -156,14 +156,12 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
                 className="group flex items-center gap-3 p-2 rounded-xl hover:bg-[var(--input-background)] transition-all duration-300 hover:shadow-lg border border-transparent hover:border-[var(--border-color)]"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm text-[var(--text-color)] font-medium truncate max-w-32">{user?.displayName || user?.email?.split('@')[0] || 'User'}</p>
+                  <p className="text-sm text-[var(--text-color)] font-medium truncate max-w-32">{user?.displayName || user?.email?.split('@')[0] || 'Profile'}</p>
                 </div>
                 <div className="relative">
-                  <img
-                    alt="User avatar"
-                    className="h-10 w-10 rounded-xl ring-2 ring-[var(--border-color)] group-hover:ring-[var(--primary-color)]/50 transition-all duration-300"
-                    src={user?.photoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face&auto=format&q=80"}
-                  />
+                  <div className="h-10 w-10 rounded-xl ring-2 ring-[var(--border-color)] group-hover:ring-[var(--primary-color)]/50 transition-all duration-300 bg-gradient-to-br from-[var(--input-background)] to-[var(--secondary-color)]/20 flex items-center justify-center shadow-sm">
+                    <span className="material-symbols-outlined text-[var(--text-color)] text-3xl drop-shadow-sm">person</span>
+                  </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-400 border-2 border-[var(--secondary-color)] rounded-full"></div>
                 </div>
                 <span className={`material-symbols-outlined text-[var(--text-color)]/70 transition-transform duration-300 ${isProfileDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
@@ -176,13 +174,11 @@ const Navbar = ({ user: propUser, isAdmin = false }) => {
                     {/* Profile Header */}
                     <div className="px-5 py-4 border-b border-[var(--border-color)]/30">
                       <div className="flex items-center gap-3">
-                        <img
-                          alt="User avatar"
-                          className="h-12 w-12 rounded-xl ring-2 ring-white/10"
-                          src={user?.photoURL || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face&auto=format&q=80"}
-                        />
+                        <div className="h-12 w-12 rounded-xl ring-2 ring-white/10 bg-gradient-to-br from-[var(--input-background)] to-[var(--secondary-color)]/20 flex items-center justify-center shadow-sm">
+                          <span className="material-symbols-outlined text-[var(--text-color)] text-4xl drop-shadow-sm">person</span>
+                        </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[var(--text-color)] truncate">{user?.displayName || 'User'}</p>
+                          <p className="text-sm font-semibold text-[var(--text-color)] truncate">{user?.displayName || 'Profile'}</p>
                           <p className="text-xs text-[var(--subtle-text-color)] truncate">{user?.email}</p>
                           <div className="flex items-center gap-1.5 mt-1">
                             <div className="w-2 h-2 bg-green-400 rounded-full"></div>

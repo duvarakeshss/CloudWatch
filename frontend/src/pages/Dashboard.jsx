@@ -419,6 +419,12 @@ const Dashboard = () => {
                 key={machine.id}
                 position={[machine.lat, machine.lng]}
                 icon={createCustomIcon(machine.status)}
+                eventHandlers={{
+                  click: (e) => {
+                    const map = e.target._map;
+                    map.setView([machine.lat, machine.lng], 15); // Close zoom level
+                  }
+                }}
               >
                 <Popup className="custom-popup">
                   <div className="p-2">

@@ -52,7 +52,7 @@ app.get("/health", (req, res) => {
     status: "OK",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    message: "CloudWatch Backend is healthy"
+    message: "DotWatch Backend is healthy"
   });
 });
 

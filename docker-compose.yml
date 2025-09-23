@@ -28,7 +28,7 @@ services:
     depends_on:
       - backend
     networks:
-      - cloudwatch-network
+      - dotwatch-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5173 || exit 1"]
@@ -52,7 +52,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     networks:
-      - cloudwatch-network
+      - dotwatch-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/health || exit 1"]
@@ -62,7 +62,7 @@ services:
       start_period: 40s
 
 networks:
-  cloudwatch-network:
+  dotwatch-network:
     driver: bridge
 
 volumes:
